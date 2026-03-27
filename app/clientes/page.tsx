@@ -18,7 +18,29 @@ type Cliente = {
 };
 
 export default function ClientesPage() {
-  const [clientes, setClientes] = useState<Cliente[]>([]);
+  const [nome, setNome] = useState("");
+const [telefone, setTelefone] = useState("");async function salvarCliente() {
+  if (!nome) return alert("Digite o nome");
+
+  const { error } = await supabase.from("clientes").insert([
+    {
+      nome,
+      telefone,
+    },
+  ]);
+
+  if (error) {
+    alert("Erro ao salvar");
+    return;
+  }
+
+  alert("Cliente salvo!");
+
+  setNome("");
+  setTelefone("");
+
+  location.reload();
+}
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -49,7 +71,27 @@ export default function ClientesPage() {
           />
           <div>
             <h1 style={styles.title}>Clientes</h1>
-            <p style={styles.subtitle}>S.R Motor Teck Auto Center</p>
+<div style={{ marginBottom: "20px" }}>
+  <h2>Novo Cliente</h2>
+
+  <input
+    placeholder="Nome"
+    value={nome}
+    onChange={(e) => setNome(e.target.value)}
+    style={{ display: "block", marginBottom: "10px", padding: "8px" }}
+  />
+
+  <input
+    placeholder="Telefone"
+    value={telefone}
+    onChange={(e) => setTelefone(e.target.value)}
+    style={{ display: "block", marginBottom: "10px", padding: "8px" }}
+  />
+
+  <button onClick={salvarCliente}>
+    Salvar Cliente
+  </button>
+</div>            <p style={styles.subtitle}>S.R Motor Teck Auto Center</p>
           </div>
         </div>
 
