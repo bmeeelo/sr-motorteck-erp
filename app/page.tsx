@@ -145,6 +145,17 @@ const [clientes, setClientes] = useState<any[]>([]);
           ))}
         </div>
       </section>
+<section style={styles.section}>
+  <h2 style={styles.sectionTitle}>Clientes Recentes</h2>
+
+  <div style={{ marginTop: "10px" }}>
+    {clientes.map((cliente) => (
+      <div key={cliente.id} style={{ marginBottom: "8px" }}>
+        {cliente.nome} - {cliente.telefone || "Sem telefone"}
+      </div>
+    ))}
+  </div>
+</section>
     </main>
   );
 }
