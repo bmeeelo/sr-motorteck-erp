@@ -12,65 +12,64 @@ type OS = {
   id: string;
   total_geral: number | null;
   status: string;
-  created_at: string;
+  emitir_nfe: boolean;
 };
 
 export default function Page() {
   const [ordens, setOrdens] = useState<OS[]>([]);
   const [loading, setLoading] = useState(true);
 
-  async function carregarDados() {
+  async function carregar() {
     const { data } = await supabase
       .from("ordens_servico")
-      .select("id, total_geral, status, created_at");
+      .select("*");
 
     setOrdens(data || []);
     setLoading(false);
   }
 
   useEffect(() => {
-    carregarDados();
+    carregar();
   }, []);
 
-  const totalGeral = ordens.reduce(
-    (acc, os) => acc + Number(os.total_geral || 0),
+  const comNfe = ordens.filter((o) => o.emitir_nfe);
+  const semNfe = ordens.filter((o) => !o.emitir_nfe);
+
+  const totalComNfe = comNfe.reduce(
+    (acc, o) => acc + Number(o.total_geral || 0),
     0
   );
 
-  const finalizadas = ordens.filter((os) => os.status === "finalizado");
-  const totalFinalizado = finalizadas.reduce(
-    (acc, os) => acc + Number(os.total_geral || 0),
+  const totalSemNfe = semNfe.reduce(
+    (acc, o) => acc + Number(o.total_geral || 0),
     0
   );
 
-  const emAndamento = ordens.filter((os) => os.status === "em_andamento");
+  const totalGeral = totalComNfe + totalSemNfe;
 
   return (
     <main style={styles.page}>
-      <h1 style={styles.title}>Financeiro</h1>
+      <h1 style={styles.title}>Financeiro / NF-e</h1>
 
       {loading ? (
-        <p style={styles.text}>Carregando...</p>
+        <p>Carregando...</p>
       ) : (
         <>
           <div style={styles.card}>
-            <h2>Faturamento Total</h2>
+            <h2>Total Geral</h2>
             <p>R$ {totalGeral.toFixed(2)}</p>
           </div>
 
           <div style={styles.card}>
-            <h2>Faturado (Finalizado)</h2>
-            <p>R$ {totalFinalizado.toFixed(2)}</p>
+            <h2>Com NF-e</h2>
+            <p>Qtd: {comNfe.length}</p>
+            <p>R$ {totalComNfe.toFixed(2)}</p>
           </div>
 
           <div style={styles.card}>
-            <h2>Ordens em Andamento</h2>
-            <p>{emAndamento.length}</p>
-          </div>
-
-          <div style={styles.card}>
-            <h2>Total de OS</h2>
-            <p>{ordens.length}</p>
+            <h2>Sem NF-e</h2>
+            <p>Qtd: {semNfe.length}</p>
+            <p>R$ {totalSemNfe.toFixed(2)}</p>
           </div>
         </>
       )}
@@ -78,26 +77,22 @@ export default function Page() {
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
+const styles = {
   page: {
     padding: "20px",
-    background: "#0f0f10",
-    color: "white",
+    background: "#ffffff",
+    color: "#000",
     minHeight: "100vh",
-    fontFamily: "Arial, sans-serif",
   },
   title: {
     marginBottom: "20px",
-    color: "#ff3b30",
-  },
-  text: {
-    color: "#c7c7c7",
+    color: "#c40000",
   },
   card: {
-    border: "1px solid #2a2a2d",
-    padding: "16px",
-    marginBottom: "12px",
+    border: "1px solid #ccc",
+    padding: "15px",
+    marginBottom: "10px",
     borderRadius: "10px",
-    background: "#111214",
+    background: "#f5f5f5",
   },
 };
