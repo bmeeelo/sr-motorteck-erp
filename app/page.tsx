@@ -48,7 +48,10 @@ export default function HomePage() {
     <main style={styles.page}>
       <header style={styles.header}>
         <div>
-          <h1 style={styles.title}>{empresa.nome}</h1>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+  <img src="/logo.png" alt="Logo S.R Motor Teck" style={{ height: "54px", width: "auto" }} />
+  <h1 style={styles.title}>{empresa.nome}</h1>
+</div>
           <p style={styles.subtitle}>ERP Oficina • Painel Inicial</p>
         </div>
         <div style={styles.headerRight}>
