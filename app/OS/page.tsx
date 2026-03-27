@@ -26,38 +26,25 @@ type Peca = {
   preco_venda: number;
 };
 
-type OrdemServico = {
-  id: string;
-  servicos_realizados: string | null;
-  total_geral: number | null;
-  status: string;
-  cliente_id: string;
-  veiculo_id: string;
-};
-
 export default function Page() {
   const [clientes, setClientes] = useState<Cliente[]>([]);
   const [veiculos, setVeiculos] = useState<Veiculo[]>([]);
   const [pecas, setPecas] = useState<Peca[]>([]);
-  const [ordens, setOrdens] = useState<OrdemServico[]>([]);
 
   const [clienteId, setClienteId] = useState("");
   const [veiculoId, setVeiculoId] = useState("");
   const [descricao, setDescricao] = useState("");
   const [valorServico, setValorServico] = useState("");
   const [pecaId, setPecaId] = useState("");
-  const [valorTotal, setValorTotal] = useState(0);
 
   async function carregarDados() {
     const { data: clientesData } = await supabase.from("clientes").select("*");
     const { data: veiculosData } = await supabase.from("veiculos").select("*");
     const { data: pecasData } = await supabase.from("pecas").select("*");
-    const { data: osData } = await supabase.from("ordens_servico").select("*");
 
     setClientes(clientesData || []);
     setVeiculos(veiculosData || []);
     setPecas(pecasData || []);
-    setOrdens(osData || []);
   }
 
   useEffect(() => {
@@ -70,11 +57,9 @@ export default function Page() {
 
   const pecaSelecionada = pecas.find((p) => p.id === pecaId);
 
-  useEffect(() => {
-    const valorServicoNum = Number(valorServico) || 0;
-    const valorPeca = pecaSelecionada?.preco_venda || 0;
-    setValorTotal(valorServicoNum + valorPeca);
-  }, [valorServico, pecaId]);
+  const valorServicoNum = Number(valorServico) || 0;
+  const valorPeca = pecaSelecionada?.preco_venda || 0;
+  const valorTotal = valorServicoNum + valorPeca;
 
   async function salvarOS() {
     if (!clienteId || !veiculoId || !descricao.trim()) {
@@ -97,12 +82,10 @@ export default function Page() {
       return;
     }
 
-    alert("OS criada com peças!");
+    alert("OS criada!");
     setDescricao("");
     setValorServico("");
     setPecaId("");
-    setValorTotal(0);
-    carregarDados();
   }
 
   return (
@@ -147,8 +130,13 @@ export default function Page() {
           ))}
         </select>
 
-        <div style={{ color: "#00ff88" }}>
-          Total: R$ {valorTotal.toFixed(2)}
+        {/* 💰 VALORES SEPARADOS */}
+        <div style={styles.resumo}>
+          <div>Serviço: R$ {valorServicoNum.toFixed(2)}</div>
+          <div>Peça: R$ {valorPeca.toFixed(2)}</div>
+          <div style={styles.total}>
+            Total: R$ {valorTotal.toFixed(2)}
+          </div>
         </div>
 
         <button onClick={salvarOS}>Criar OS</button>
@@ -173,5 +161,17 @@ const styles = {
     flexDirection: "column" as const,
     gap: "10px",
     maxWidth: "500px",
+  },
+  resumo: {
+    marginTop: "10px",
+    padding: "10px",
+    border: "1px solid #333",
+    borderRadius: "8px",
+    background: "#111214",
+  },
+  total: {
+    marginTop: "6px",
+    color: "#00ff88",
+    fontWeight: "bold",
   },
 };
