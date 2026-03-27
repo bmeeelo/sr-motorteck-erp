@@ -32,12 +32,14 @@ export default function Page() {
   const [motor, setMotor] = useState("");
   const [estoque, setEstoque] = useState("");
 
+  function calcularPreco(custo: number, margem: number) {
+    return custo + (custo * margem) / 100;
+  }
+
   async function carregarPecas() {
     const { data } = await supabase
       .from("pecas")
-      .select(
-        "id, descricao, custo, margem_lucro, preco_venda, aplicacao_veiculo, aplicacao_ano, aplicacao_motor, quantidade_estoque"
-      )
+      .select("*")
       .order("created_at", { ascending: false });
 
     setPecas(data || []);
@@ -54,11 +56,16 @@ export default function Page() {
       return;
     }
 
+    const custoNum = Number(custo) || 0;
+    const margemNum = Number(margem) || 40;
+    const precoVenda = calcularPreco(custoNum, margemNum);
+
     const { error } = await supabase.from("pecas").insert([
       {
         descricao: descricao.trim(),
-        custo: Number(custo) || 0,
-        margem_lucro: Number(margem) || 40,
+        custo: custoNum,
+        margem_lucro: margemNum,
+        preco_venda: precoVenda,
         aplicacao_veiculo: veiculo.trim() || null,
         aplicacao_ano: ano.trim() || null,
         aplicacao_motor: motor.trim() || null,
@@ -71,7 +78,7 @@ export default function Page() {
       return;
     }
 
-    alert("Peça salva com sucesso!");
+    alert("Peça salva com margem aplicada!");
     setDescricao("");
     setCusto("");
     setMargem("40");
@@ -104,7 +111,7 @@ export default function Page() {
         />
 
         <input
-          placeholder="Margem de lucro (%)"
+          placeholder="Margem (%)"
           value={margem}
           onChange={(e) => setMargem(e.target.value)}
           style={styles.input}
@@ -132,7 +139,7 @@ export default function Page() {
         />
 
         <input
-          placeholder="Quantidade em estoque"
+          placeholder="Estoque"
           value={estoque}
           onChange={(e) => setEstoque(e.target.value)}
           style={styles.input}
@@ -152,8 +159,10 @@ export default function Page() {
           <div key={peca.id} style={styles.card}>
             <strong>{peca.descricao}</strong>
             <div>Custo: R$ {Number(peca.custo || 0).toFixed(2)}</div>
-            <div>Margem: {Number(peca.margem_lucro || 0).toFixed(2)}%</div>
-            <div>Venda: R$ {Number(peca.preco_venda || 0).toFixed(2)}</div>
+            <div>Margem: {Number(peca.margem_lucro || 0)}%</div>
+            <div style={{ color: "#00ff88" }}>
+              Venda: R$ {Number(peca.preco_venda || 0).toFixed(2)}
+            </div>
             <div>
               Aplicação: {peca.aplicacao_veiculo || "-"} / {peca.aplicacao_ano || "-"} / {peca.aplicacao_motor || "-"}
             </div>
