@@ -8,6 +8,7 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 export default function HomePage() {
+const [clientes, setClientes] = useState<any[]>([]);
   const empresa = {
     nome: "S.R Motor Teck Auto Center",
     cnpj: "07.545.615/0001-42",
