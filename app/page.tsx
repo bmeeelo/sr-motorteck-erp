@@ -9,6 +9,20 @@ const supabase = createClient(
 );
 export default function HomePage() {
 const [clientes, setClientes] = useState<any[]>([]);
+  useEffect(() => {
+  async function carregarClientes() {
+    const { data, error } = await supabase
+      .from("clientes")
+      .select("*")
+      .limit(5);
+
+    if (!error && data) {
+      setClientes(data);
+    }
+  }
+
+  carregarClientes();
+}, []);
   const empresa = {
     nome: "S.R Motor Teck Auto Center",
     cnpj: "07.545.615/0001-42",
